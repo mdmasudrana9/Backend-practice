@@ -13,7 +13,7 @@ app.use(cors())
 app.use('/api/v1/students', StudentRoutes)
 
 app.get('/', (req: Request, res: Response) => {
-  res.send('Hello World!')
+  res.send('Hello World! hiiiii')
 })
 
 export default app
