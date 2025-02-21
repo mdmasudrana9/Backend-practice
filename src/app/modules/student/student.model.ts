@@ -7,8 +7,6 @@ import {
   TuserName,
 } from './student.interface'
 import validator from 'validator'
-import bcrypt from 'bcrypt'
-import config from '../../config'
 
 const userNameSchema = new Schema<TuserName>({
   firstName: {
@@ -95,11 +93,13 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       required: [true, 'Student ID is required'],
       unique: true,
     },
-    password: {
-      type: String,
-      required: [true, 'password ID is required'],
-      maxlength: [20, 'password can not be more than 20 characters'],
+    user: {
+      type: Schema.Types.ObjectId,
+      require: [true, 'User id is required'],
+      unique: true,
+      ref: 'User',
     },
+
     name: {
       type: userNameSchema,
       required: [true, 'Student name is required'],
@@ -155,14 +155,6 @@ const studentSchema = new Schema<TStudent, StudentModel>(
     profileImg: {
       type: String,
     },
-    isActive: {
-      type: String,
-      enum: {
-        values: ['active', 'inactive'],
-        message: "Status must be either 'active' or 'inactive'",
-      },
-      default: 'active',
-    },
     isDeleted: {
       type: Boolean,
       default: false,
@@ -181,22 +173,6 @@ studentSchema.virtual('fullName').get(function () {
 })
 
 //Document middleware/hook:
-
-//Pre save middleware/hook:
-studentSchema.pre('save', async function () {
-  // console.log(this, 'will save before call middleware')
-  const user = this
-  user.password = await bcrypt.hash(
-    user.password,
-    Number(config.bcrypt_salt_rounds),
-  )
-})
-//post save middleware/hook:
-studentSchema.post('save', function (doc, next) {
-  doc.password = ''
-  next()
-  // console.log(this, 'was saved after middleware')
-})
 
 //Query middleware/hook:
 studentSchema.pre('find', function (next) {
