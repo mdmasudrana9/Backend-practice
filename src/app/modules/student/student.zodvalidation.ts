@@ -49,7 +49,7 @@ const createStudentZodValidationSchema = z.object({
           message: "Gender must be 'male', 'female', or 'other'",
         }),
       }),
-      dateOfBirth: z.string().trim().optional(),
+      dateOfBirth: z.date().optional(),
       email: z.string().trim().email('Invalid email format'),
       contactNo: z.string().trim().min(1, 'Contact number is required'),
       emergencyContactNo: z
