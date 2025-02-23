@@ -49,7 +49,7 @@ const createStudentZodValidationSchema = z.object({
           message: "Gender must be 'male', 'female', or 'other'",
         }),
       }),
-      dateOfBirth: z.date().optional(),
+      dateOfBirth: z.string().optional(),
       email: z.string().trim().email('Invalid email format'),
       contactNo: z.string().trim().min(1, 'Contact number is required'),
       emergencyContactNo: z
@@ -66,6 +66,7 @@ const createStudentZodValidationSchema = z.object({
         .min(1, 'Permanent address is required'),
       gurdian: guardianZodValidationSchema,
       localGuardian: localGuardianZodValidationSchema,
+      addmissionSemester: z.string(),
       profileImg: z
         .string()
         .trim()

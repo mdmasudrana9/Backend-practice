@@ -34,7 +34,7 @@ const updateAcademicSemsterIntoDB = async (
   if (
     payload.name &&
     payload.code &&
-    AcademicSemesterNameCodeMapper[payload.name] === payload.code
+    AcademicSemesterNameCodeMapper[payload.name] !== payload.code
   ) {
     throw new Error('Please provide all the required fields')
   }
