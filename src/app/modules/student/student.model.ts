@@ -163,6 +163,10 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       type: Boolean,
       default: false,
     },
+    academicDepartment: {
+      type: Schema.Types.ObjectId,
+      ref: 'AcademicDepartment',
+    },
   },
   {
     toJSON: { virtuals: true }, // ✅ Ensure virtual properties are included

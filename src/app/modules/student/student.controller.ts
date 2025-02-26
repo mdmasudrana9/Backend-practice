@@ -40,9 +40,9 @@ const deleteSingleStudent = catchAsync(async (req, res, next) => {
 
 const updateStudent = catchAsync(async (req, res, next): Promise<void> => {
   const { studentId } = req.params
-  const updatedData = req.body
+  const { student } = req.body
 
-  const result = await StudentService.updateStudentInDB(studentId, updatedData)
+  const result = await StudentService.updateStudentInDB(studentId, student)
 
   if (!result) {
     res.status(404).json({ success: false, message: 'Student not found' })
