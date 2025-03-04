@@ -177,7 +177,7 @@ const studentSchema = new Schema<TStudent, StudentModel>(
 // ** Virtual Property - Full Name **
 studentSchema.virtual('fullName').get(function () {
   if (!this.name) return '' // Handle missing name field
-  return `${this.name.firstName} ${this.name.middleName ? this.name.middleName + ' ' : ''}${this.name.lastName}`
+  return `${this?.name?.firstName} ${this?.name?.middleName ? this?.name?.middleName + ' ' : ''}${this?.name?.lastName}`
 })
 
 //Document middleware/hook:

@@ -1,20 +1,89 @@
+import httpStatus from 'http-status'
 import mongoose from 'mongoose'
+import AppError from '../../errors/AppError'
+import { User } from '../user/user.model'
 import { TStudent } from './student.interface'
 import { Student } from './student.model'
-import AppError from '../../errors/AppError'
-import httpStatus from 'http-status'
-import { User } from '../user/user.model'
-import { object } from 'joi'
+import QueryBuilder from '../../builder/QueryBuilder'
+import { studentSearchablefields } from './student.constant'
 
-const getAllStudentsFromDB = async () => {
-  const result = await Student.find()
-    .populate('addmissionSemester')
-    .populate({
-      path: 'academicDepartment',
-      populate: { path: 'academicFaculty' },
-    })
+const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
+  // console.log('base query', query)
+  // const queryObj = { ...query }
+
+  // let searchTerm = ''
+  // if (query?.searchTerm) {
+  //   searchTerm = query?.searchTerm as string
+  // }
+
+  // const searchQuery = Student.find({
+  //   $or: studentSearchablefields.map((field) => ({
+  //     [field]: { $regex: searchTerm, $options: 'i' },
+  //   })),
+  // })
+
+  //Filtering
+  // const excludeFileds = ['searchTerm', 'sort', 'limit', 'page', 'fields']
+
+  // excludeFileds.forEach((el) => delete queryObj[el])
+  // console.log({ query }, { queryObj })
+
+  // const filterQuery = searchQuery
+  //   .find(queryObj)
+  //   .populate('addmissionSemester')
+  //   .populate({
+  //     path: 'academicDepartment',
+  //     populate: { path: 'academicFaculty' },
+  //   })
+
+  //sorting
+  // let sort = '-createdAt'
+  // if (query.sort) {
+  //   sort = query.sort as string
+  // }
+
+  // const sortQuery = filterQuery.sort(sort)
+  // let page = 1
+  // let limit = 1
+  // let skip = 0
+
+  // if (query.limit) {
+  //   limit = Number(query.limit)
+  // }
+
+  // if (query.page) {
+  //   page = Number(query.page)
+  //   skip = (page - 1) * limit
+  // }
+
+  // const paginateQuery = sortQuery.skip(skip)
+
+  // const limitQuery = paginateQuery.limit(limit)
+
+  // //Fields Limiting
+  // let fields = '-__v'
+
+  // if (query.fields) {
+  //   fields = (query.fields as string).split(',').join(' ')
+  //   console.log(fields)
+  // }
+
+  // const fieldsQuery = await limitQuery.select(fields)
+
+  // return fieldsQuery
+
+  const studentQuery = new QueryBuilder(Student.find(), query)
+    .search(studentSearchablefields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields()
+    .populate()
+
+  const result = await studentQuery.modelQuery
   return result
 }
+
 const getSingleStudentsFromDB = async (id: string) => {
   const result = await Student.findOne({ id })
     .populate('addmissionSemester')
