@@ -15,8 +15,8 @@ const getAllStudents = catchAsync(async (req, res, next) => {
 })
 
 const getSingleStudent = catchAsync(async (req, res, next) => {
-  const { studentId } = req.params
-  const result = await StudentService.getSingleStudentsFromDB(studentId)
+  const { id } = req.params
+  const result = await StudentService.getSingleStudentsFromDB(id)
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -27,8 +27,8 @@ const getSingleStudent = catchAsync(async (req, res, next) => {
 })
 
 const deleteSingleStudent = catchAsync(async (req, res, next) => {
-  const { studentId } = req.params
-  const result = await StudentService.deleteSingleStudentsFromDB(studentId)
+  const { id } = req.params
+  const result = await StudentService.deleteSingleStudentsFromDB(id)
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -40,10 +40,10 @@ const deleteSingleStudent = catchAsync(async (req, res, next) => {
 // Controller function
 
 const updateStudent = catchAsync(async (req, res, next): Promise<void> => {
-  const { studentId } = req.params
+  const { id } = req.params
   const { student } = req.body
 
-  const result = await StudentService.updateStudentInDB(studentId, student)
+  const result = await StudentService.updateStudentInDB(id, student)
 
   if (!result) {
     res.status(404).json({ success: false, message: 'Student not found' })
