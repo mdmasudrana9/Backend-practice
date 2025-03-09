@@ -1,11 +1,13 @@
 import QueryBuilder from '../../builder/QueryBuilder'
 import AppError from '../../errors/AppError'
 import { AcademicSemester } from '../academicSemester/academicSemester.model'
-import { semesterRegistrationStatus } from './semesterRegistration.constant'
+import {
+  RegistrationStatus,
+  semesterRegistrationStatus,
+} from './semesterRegistration.constant'
 import { TSemesterRegistration } from './semesterRegistration.interface'
 import { SemesterRegistration } from './semesterRegistration.model'
 import httpStatus from 'http-status'
-import { Query } from 'mongoose'
 
 const createSemesterRegistration = async (payload: TSemesterRegistration) => {
   const academicSemester = payload?.academicSemester
@@ -13,9 +15,9 @@ const createSemesterRegistration = async (payload: TSemesterRegistration) => {
   const isThereAnyUpcommingOrOngoingSemester =
     await SemesterRegistration.findOne({
       $or: [
-        { status: 'UPCOMING' },
+        { status: RegistrationStatus.UPCOMING },
         {
-          status: 'ONGOING',
+          status: RegistrationStatus.ONGOING,
         },
       ],
     })
@@ -70,6 +72,7 @@ const updateSemesterRegistration = async (
   id: string,
   payload: Partial<TSemesterRegistration>,
 ) => {
+  const requestedStatus = payload?.status
   //check if the semester is  exits
   const isSemeterRegistrtionExits = await SemesterRegistration.findById(id)
 
@@ -79,19 +82,42 @@ const updateSemesterRegistration = async (
 
   // if the requested semester is eneded , we will not updated anything
 
-  const CurrentrequestedSemesterStatus = await isSemeterRegistrtionExits?.status
+  const CurrentrequestedSemesterStatus = isSemeterRegistrtionExits?.status
 
-  if (CurrentrequestedSemesterStatus === 'ENDED') {
+  if (CurrentrequestedSemesterStatus === RegistrationStatus.ENDED) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       `This Semester is Already ${CurrentrequestedSemesterStatus}`,
     )
   }
 
-  return await SemesterRegistration.findByIdAndUpdate(id, payload, {
+  //Upcomming ---->Onging ---->Ended
+
+  if (
+    CurrentrequestedSemesterStatus === RegistrationStatus.UPCOMING &&
+    requestedStatus === RegistrationStatus.ENDED
+  ) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      `You can not directly status from ${CurrentrequestedSemesterStatus}to ${requestedStatus}`,
+    )
+  }
+
+  if (
+    CurrentrequestedSemesterStatus === RegistrationStatus.ONGOING &&
+    requestedStatus === RegistrationStatus.UPCOMING
+  ) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      `You can not directly status from ${CurrentrequestedSemesterStatus}to ${requestedStatus}`,
+    )
+  }
+
+  const result = await SemesterRegistration.findByIdAndUpdate(id, payload, {
     new: true,
     runValidators: true,
   })
+  return result
 }
 
 const deleteSemesterRegistration = async (id: string) => {
