@@ -5,6 +5,8 @@ import {
   FacultyValidations,
   updateFacultyValidationSchema,
 } from './faculty.validation'
+import auth from '../../middleware/auth'
+import { USER_ROLE } from '../user/user.constant'
 
 const router = Router()
 
@@ -15,6 +17,10 @@ router.patch(
   FacultyControllers.updateFaculty,
 )
 router.delete('/:id', FacultyControllers.deleteFaculty)
-router.get('/', FacultyControllers.getAllFaculties)
+router.get(
+  '/',
+  auth(USER_ROLE.admin, USER_ROLE.faculty),
+  FacultyControllers.getAllFaculties,
+)
 
 export const FacultyRoutes = router

@@ -1,5 +1,5 @@
 import { model, Schema } from 'mongoose'
-import { TUser } from './user.interface'
+import { TUser, UserModel } from './user.interface'
 import config from '../../config'
 import bcrypt from 'bcrypt'
 
@@ -10,13 +10,21 @@ const userSchema = new Schema<TUser>(
       require: true,
       unique: true,
     },
+    email: {
+      type: String,
+      require: true,
+      unique: true,
+    },
     password: {
       type: String,
       require: true,
+      select: 0,
     },
     needsPasswordChange: {
       type: String,
-      default: true,
+    },
+    passwordChangedAt: {
+      type: Date,
     },
     role: {
       type: String,
@@ -53,4 +61,26 @@ userSchema.post('save', function (doc, next) {
   // console.log(this, 'was saved after middleware')
 })
 
-export const User = model<TUser>('User', userSchema)
+//static methods
+
+userSchema.statics.isUserExistsByCustomId = async function (id: string) {
+  return await User.findOne({ id }).select('+password')
+}
+
+userSchema.statics.isPasswordMatched = async function (
+  plainTextPassword,
+  hashedPassword,
+) {
+  return await bcrypt.compare(plainTextPassword, hashedPassword)
+}
+
+userSchema.statics.isJWTIssuedBeforePasswordChanged = function (
+  passwordChangedTimestamp: Date,
+  jwtIssuedTimestamp: number,
+) {
+  const passwordChangedTime =
+    new Date(passwordChangedTimestamp).getTime() / 1000
+  return passwordChangedTime > jwtIssuedTimestamp
+}
+
+export const User = model<TUser, UserModel>('User', userSchema)
