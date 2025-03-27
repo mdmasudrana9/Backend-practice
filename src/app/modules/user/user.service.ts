@@ -19,8 +19,14 @@ import {
 import { Faculty } from '../Faculty/faculty.model'
 import { Admin } from '../admin/admin.model'
 import { TAdmin } from '../admin/admin.interface'
+import { veriFyToken } from '../Auth/auth.utils'
+import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary'
 
-const createStudentIntoDB = async (password: string, payload: TStudent) => {
+const createStudentIntoDB = async (
+  file: any,
+  password: string,
+  payload: TStudent,
+) => {
   //will create a student in the database
 
   //custom static method
@@ -49,6 +55,14 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
     session.startTransaction()
     //set generated id
     userData.id = await generateStudentId(admissionSemester)
+
+    if (file) {
+      const imageName = `${userData.id}${payload?.name?.firstName}`
+      const path = file?.path
+      //send image to cloudinary
+      const { secure_url } = await sendImageToCloudinary(imageName, path)
+      payload.profileImg = secure_url as string
+    }
     //create a user(Transaction-1)
     const newUser = await User.create([userData], { session }) //built-in  static method of mongoose
 
@@ -189,8 +203,37 @@ const createAdminIntoDB = async (password: string, payload: TAdmin) => {
   }
 }
 
+const getMeIntoDB = async (userId: string, role: string) => {
+  // const decoded = veriFyToken(token, config.jwt_secret as string)
+  // const { userId, role } = decoded
+  // console.log(userId, role)
+
+  let result = null
+  if (role === 'student') {
+    result = await Student.findOne({ id: userId }).populate('user')
+  }
+  if (role === 'faculty') {
+    result = await Faculty.findOne({ id: userId }).populate('user')
+  }
+  if (role === 'admin') {
+    result = await Admin.findOne({ id: userId }).populate('user')
+  }
+
+  return result
+}
+
+const changeStatusIntoDB = async (id: string, payload: { status: string }) => {
+  const result = await User.findByIdAndUpdate(id, payload, {
+    new: true,
+  })
+
+  return result
+}
+
 export const userService = {
   createStudentIntoDB,
   createFacultyIntoDB,
   createAdminIntoDB,
+  getMeIntoDB,
+  changeStatusIntoDB,
 }

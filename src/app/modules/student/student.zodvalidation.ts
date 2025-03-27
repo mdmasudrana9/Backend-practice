@@ -68,11 +68,11 @@ const createStudentZodValidationSchema = z.object({
       localGuardian: createlocalGuardianZodValidationSchema,
       addmissionSemester: z.string(),
       academicDepartment: z.string(),
-      profileImg: z
-        .string()
-        .trim()
-        .url('Profile image must be a valid URL')
-        .optional(),
+      // profileImg: z
+      //   .string()
+      //   .trim()
+      //   .url('Profile image must be a valid URL')
+      //   .optional(),
     }),
   }),
 })

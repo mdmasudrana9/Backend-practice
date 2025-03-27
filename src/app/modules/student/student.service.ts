@@ -100,6 +100,7 @@ const getSingleStudentsFromDB = async (id: string) => {
       populate: { path: 'academicFaculty' },
     })
   // const result = await Student.aggregate([{ $match: { id: id } }])
+  // console.log(result)
   return result
 }
 

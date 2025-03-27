@@ -2,6 +2,8 @@ import express from 'express'
 import { StudentController } from './student.controller'
 import ValidateRequest from '../../middleware/validateRequest'
 import { studentZodValidations } from './student.zodvalidation'
+import auth from '../../middleware/auth'
+import { USER_ROLE } from '../user/user.constant'
 
 const router = express.Router()
 
@@ -9,7 +11,11 @@ const router = express.Router()
 
 // router.post('/create-student', StudentController.createStudent)
 router.get('/', StudentController.getAllStudents)
-router.get('/:id', StudentController.getSingleStudent)
+router.get(
+  '/:id',
+  auth(USER_ROLE.admin, USER_ROLE.faculty),
+  StudentController.getSingleStudent,
+)
 router.delete('/:id', StudentController.deleteSingleStudent)
 router.patch(
   '/:id',
