@@ -73,13 +73,13 @@ class QueryBuilder<T> {
     }
   }
 
-  populate() {
-    this.modelQuery = this.modelQuery.populate('addmissionSemester').populate({
-      path: 'academicDepartment',
-      populate: { path: 'academicFaculty' },
-    })
-    return this
-  }
+  // populate() {
+  //   this.modelQuery = this.modelQuery.populate('addmissionSemester').populate({
+  //     path: 'academicDepartment',
+  //     populate: { path: 'academicFaculty' },
+  //   })
+  //   return this
+  // }
 }
 
 export default QueryBuilder
